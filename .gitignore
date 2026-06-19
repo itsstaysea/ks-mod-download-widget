@@ -1,0 +1,6 @@
+.netlify/
+netlify.toml
+assets/
+docs/
+career-download-links-saved-before-coming-soon.md
+career-thumbnail-template.html
