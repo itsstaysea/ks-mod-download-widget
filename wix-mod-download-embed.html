@@ -894,6 +894,14 @@
       letter-spacing: 0;
     }
 
+    #ks-mod-widget .ks-smart-word {
+      color: #f4a6c4;
+      font-family: "Quicksand", "Century Gothic", "Trebuchet MS", system-ui, sans-serif;
+      font-weight: 400;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
     #ks-mod-widget .ks-description {
       margin: 0;
       color: #5f5872;
@@ -1700,7 +1708,7 @@
       "optionalRequirements": ""
     },
     {
-      "name": "Beauty Careers",
+      "name": "Smart ♡ Beauty Careers",
       "game": "The Sims 4",
       "kind": "Gameplay Mod",
       "requirements": "Early Release",
@@ -1741,7 +1749,7 @@
       "blogUrl": "https://www.kawaii-stacie.com/post/beauty-careers"
     },
     {
-      "name": "Better Careers",
+      "name": "Smart ♡ Better Careers",
       "game": "The Sims 4",
       "kind": "Gameplay Mod",
       "requirements": "Base Game + Pack careers supported",
@@ -3960,6 +3968,27 @@
         return node;
       }
 
+      function decorateSmartName(node, name) {
+        const label = String(name || "");
+        const prefix = "Smart ♡ ";
+        if (!label.startsWith(prefix)) {
+          node.textContent = label;
+          return node;
+        }
+        node.append(make("span", "ks-smart-word", "Smart"));
+        node.append(document.createTextNode(" ♡ " + label.slice(prefix.length)));
+        return node;
+      }
+
+      function makeTitle(tag, className, name) {
+        return decorateSmartName(make(tag, className), name);
+      }
+
+      function setSmartName(node, name) {
+        node.innerHTML = "";
+        decorateSmartName(node, name);
+      }
+
       function renderFilters() {
         filters.innerHTML = "";
         const current = sourceMods();
@@ -4091,7 +4120,7 @@
 
         const main = make("div", "ks-career-main");
         main.append(make("div", "ks-career-label", careerGroup(mod)));
-        main.append(make("h3", "", mod.name));
+        main.append(makeTitle("h3", "", mod.name));
         main.append(make("p", "ks-description", displayDescription(mod)));
         const tags = make("div", "ks-tags");
         visibleCareerTags(mod).forEach(tag => {
@@ -4152,7 +4181,7 @@
 
         const copy = make("div", "ks-copy");
         copy.append(make("div", "ks-category", (mod.game || mod.platform || "The Sims 4") + " | " + (mod.kind || mod.category || "Mod")));
-        copy.append(make("h3", "", mod.name));
+        copy.append(makeTitle("h3", "", mod.name));
         copy.append(make("p", "ks-description", mod.description));
         const tags = make("div", "ks-tags");
         (mod.tags || []).forEach(tag => tags.append(make("span", "ks-tag", tag)));
@@ -4196,7 +4225,7 @@
 
       function openDetail(mod) {
         detail.classList.add("active");
-        detailTitle.textContent = mod.name;
+        setSmartName(detailTitle, mod.name);
         detailBody.innerHTML = "";
 
         const layout = make("div", "ks-detail-layout");
@@ -4210,7 +4239,7 @@
 
         const copy = make("div", "ks-detail-copy");
         copy.append(make("div", "ks-category", (mod.game || mod.platform || "The Sims 4") + " | " + (mod.kind || mod.category || "Mod")));
-        copy.append(make("h3", "", mod.name));
+        copy.append(makeTitle("h3", "", mod.name));
         copy.append(make("p", "ks-description", displayDescription(mod)));
 
         const meta = make("div", "ks-meta");
