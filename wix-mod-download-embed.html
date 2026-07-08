@@ -3975,8 +3975,8 @@
           node.textContent = label;
           return node;
         }
-        node.append(make("span", "ks-smart-word", "Smart"));
-        node.append(document.createTextNode(" ♡ " + label.slice(prefix.length)));
+        node.append(make("span", "ks-smart-word", "Smart ♡"));
+        node.append(document.createTextNode(" " + label.slice(prefix.length)));
         return node;
       }
 
