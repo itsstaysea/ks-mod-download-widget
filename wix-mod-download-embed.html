@@ -2397,6 +2397,7 @@
         "Career",
         "Custom Career",
         "Base Game",
+        "Part Time",
         "Modeling",
         "Beauty",
         "Beauty Careers"
@@ -2429,6 +2430,7 @@
         "Career",
         "Custom Career",
         "Base Game",
+        "Part Time",
         "Cafe",
         "Anime",
         "Beauty Careers"
@@ -2461,6 +2463,7 @@
         "Career",
         "Custom Career",
         "Base Game",
+        "Part Time",
         "Beauty",
         "Skincare",
         "Beauty Careers"
@@ -2493,6 +2496,7 @@
         "Career",
         "Custom Career",
         "Base Game",
+        "Part Time",
         "Modeling",
         "Fashion",
         "Beauty Careers"
@@ -2525,6 +2529,7 @@
         "Career",
         "Custom Career",
         "Base Game",
+        "Part Time",
         "Makeup",
         "Beauty",
         "Beauty Careers"
@@ -2557,6 +2562,7 @@
         "Career",
         "Custom Career",
         "Base Game",
+        "Part Time",
         "Hair",
         "Salon",
         "Beauty Careers"
@@ -2589,6 +2595,7 @@
         "Career",
         "Custom Career",
         "Base Game",
+        "Part Time",
         "Nails",
         "Salon",
         "Beauty Careers"
@@ -2621,6 +2628,7 @@
         "Career",
         "Custom Career",
         "Base Game",
+        "Part Time",
         "Cosplay",
         "Creative",
         "Beauty Careers"
@@ -3835,13 +3843,19 @@
         return (mod.tags || []).some(value => value === tag);
       }
 
+      function careerGroups(mod) {
+        const groups = [];
+        if (mod.kind === "Custom Career" || hasTag(mod, "Custom Career")) groups.push("Custom Career");
+        if (hasTag(mod, "Base Game") && hasTag(mod, "Full Time")) groups.push("Base Game Full Time");
+        if (hasTag(mod, "Base Game") && hasTag(mod, "Part Time")) groups.push("Base Game Part Time");
+        if (hasTag(mod, "Pack Needed") && hasTag(mod, "Full Time")) groups.push("Pack Full Time");
+        if (hasTag(mod, "Pack Needed") && hasTag(mod, "Part Time")) groups.push("Pack Part Time");
+        if (!groups.length) groups.push("Career");
+        return groups;
+      }
+
       function careerGroup(mod) {
-        if (mod.kind === "Custom Career") return "Custom Career";
-        if (hasTag(mod, "Base Game") && hasTag(mod, "Full Time")) return "Base Game Full Time";
-        if (hasTag(mod, "Base Game") && hasTag(mod, "Part Time")) return "Base Game Part Time";
-        if (hasTag(mod, "Pack Needed") && hasTag(mod, "Full Time")) return "Pack Full Time";
-        if (hasTag(mod, "Pack Needed") && hasTag(mod, "Part Time")) return "Pack Part Time";
-        return "Career";
+        return careerGroups(mod)[0];
       }
 
       function visibleCareerTags(mod) {
@@ -3951,10 +3965,11 @@
       }
 
       function matches(mod) {
-        const haystack = text([mod.name, mod.category, mod.kind, mod.description, mod.requirements, mod.optionalRequirements, careerGroup(mod)].concat(mod.tags || []).join(" "));
+        const groups = careerGroups(mod);
+        const haystack = text([mod.name, mod.category, mod.kind, mod.description, mod.requirements, mod.optionalRequirements].concat(groups, mod.tags || []).join(" "));
         let categoryMatch = state.category === "All";
         if (!categoryMatch && state.mode === "careers") {
-          categoryMatch = careerGroup(mod) === state.category;
+          categoryMatch = groups.includes(state.category);
         } else if (!categoryMatch) {
           categoryMatch = state.category === "Base Game" ? haystack.includes("base game") : mod.category === state.category;
         }
