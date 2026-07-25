@@ -1,4 +1,4 @@
-﻿<div id="ks-mod-widget" class="ks-mod-widget" data-profile-image="https://www.dropbox.com/scl/fi/r2m1n1kyrqj16vvr2ogt5/Profile.jpg?rlkey=mx59y15del3t0erbvgnucol2p&amp;raw=1">
+<div id="ks-mod-widget" class="ks-mod-widget" data-profile-image="https://www.dropbox.com/scl/fi/r2m1n1kyrqj16vvr2ogt5/Profile.jpg?rlkey=mx59y15del3t0erbvgnucol2p&amp;raw=1">
   <style>
     html,
     body {
@@ -1750,7 +1750,7 @@
                      "optionalRequirements":  ""
                  },
                  {
-                     "name":  "Smart â™¡ Beauty Careers",
+                     "name":  "Smart \u2661 Beauty Careers",
                      "game":  "The Sims 4",
                      "kind":  "Gameplay Mod",
                      "requirements":  "Base Game",
@@ -1794,7 +1794,7 @@
                      "individualMode":  "careers"
                  },
                  {
-                     "name":  "Smart â™¡ Better Careers",
+                     "name":  "Smart \u2661 Better Careers",
                      "game":  "The Sims 4",
                      "kind":  "Gameplay Mod",
                      "requirements":  "Base Game + Pack careers supported",
@@ -5486,12 +5486,12 @@
 
       function decorateSmartName(node, name) {
         const label = String(name || "");
-        const prefix = "Smart â™¡ ";
+        const prefix = "Smart \u2661 ";
         if (!label.startsWith(prefix)) {
           node.textContent = label;
           return node;
         }
-        node.append(make("span", "ks-smart-word", "Smart â™¡"));
+        node.append(make("span", "ks-smart-word", "Smart \u2661"));
         node.append(document.createTextNode(" " + label.slice(prefix.length)));
         return node;
       }
