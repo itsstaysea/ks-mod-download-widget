@@ -5495,8 +5495,26 @@
 
       const releaseDates = {
         "Smart \u2661 Cleaning Careers": "2026-08-03",
-        "Memorable Events": "2026-07-31",
-        "Smart \u2661 Beauty Careers": "2026-07-14"
+        "Memorable Events": "2026-07-25",
+        "Smart \u2661 Beauty Careers": "2026-07-07",
+        "Smart \u2661 Better Careers": "2026-06-13",
+        "Switch Streaming Mod": "2026-05-22",
+        "Smart Wabbit Tablet": "2026-05-01",
+        "The Explore Mod": "2026-04-20",
+        "K-Pop Star Mod": "2026-03-26",
+        "Advanced Fishing V2": "2026-03-09",
+        "Social Media Mod": "2026-03-05",
+        "Roommate Stories": "2026-03-03",
+        "Custom Career": "2026-02-23",
+        "Ownable Food Business": "2026-02-14",
+        "Pet Frogs & Insects": "2025-10-24",
+        "Fish Are Pets Aquarium Mod": "2025-10-24",
+        "My School Life": "2025-09-17",
+        "Slice of Life Mod": "2025-07-07",
+        "Preschool Mod": "2025-05-14",
+        "Good vs Bad Cook": "2025-05-12",
+        "Chaotic Archetypes": "2025-01-24",
+        "Mannequin Trait": "2024-07-16"
       };
 
       modCards.forEach(mod => {
@@ -5505,10 +5523,12 @@
       careerCards.forEach(career => {
         const tags = career.tags || [];
         if (tags.includes("Cleaning Careers")) career.sortDate = "2026-08-03";
-        if (tags.includes("Beauty Careers")) career.sortDate = "2026-07-14";
+        if (tags.includes("Beauty Careers")) career.sortDate = "2026-07-07";
+        if (tags.includes("Career Override")) career.sortDate = "2026-06-13";
+        if (career.name === "Convenience Store Clerk") career.sortDate = "2026-06-10";
       });
       eventCards.forEach(event => {
-        event.sortDate = "2026-07-31";
+        event.sortDate = "2026-07-25";
       });
       const modeAliases = {
         career: "careers",
