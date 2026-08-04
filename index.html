@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-D9Y52M4SBR"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -562,11 +563,10 @@
 
     #ks-mod-widget .ks-controls {
       display: grid;
-      grid-template-columns: minmax(180px, 1fr) auto;
+      grid-template-columns: minmax(180px, 1fr) minmax(150px, 210px) auto;
       gap: 10px;
       align-items: end;
     }
-
     #ks-mod-widget .ks-search-label {
       display: grid;
       gap: 4px;
@@ -575,7 +575,8 @@
       font-weight: 800;
     }
 
-    #ks-mod-widget input[type="search"] {
+    #ks-mod-widget input[type="search"],
+    #ks-mod-widget select {
       width: 100%;
       min-height: 40px;
       padding: 8px 10px;
@@ -587,6 +588,15 @@
       font-size: 15px;
     }
 
+    #ks-mod-widget .ks-sort-label {
+      max-width: 210px;
+    }
+
+    #ks-mod-widget select {
+      cursor: pointer;
+      background: linear-gradient(#ffffff, #fff8fc);
+      font-weight: 800;
+    }
     #ks-mod-widget .ks-filter-row {
       display: flex;
       flex-wrap: wrap;
@@ -667,11 +677,13 @@
     }
 
     #ks-mod-widget .ks-status {
+      align-self: center;
+      justify-self: end;
       color: var(--ks-soft);
       font-size: 13px;
       font-weight: 700;
+      white-space: nowrap;
     }
-
     #ks-mod-widget .ks-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -1078,11 +1090,18 @@
         justify-content: stretch;
       }
 
+      #ks-mod-widget .ks-sort-label {
+        max-width: none;
+      }
+
+      #ks-mod-widget .ks-status {
+        justify-self: start;
+      }
+
       #ks-mod-widget .ks-button,
       #ks-mod-widget button.ks-button {
         width: 100%;
       }
-
       #ks-mod-widget .ks-card-actions,
       #ks-mod-widget .ks-career-card-actions,
       #ks-mod-widget .ks-meta {
@@ -1655,6 +1674,14 @@
           <label class="ks-search-label" for="ks-mod-search">
             Search
             <input id="ks-mod-search" type="search" placeholder="Search by mod, pack, category, or tag">
+          </label>
+          <label class="ks-search-label ks-sort-label" for="ks-mod-sort">
+            Sort
+            <select id="ks-mod-sort" data-ks-sort aria-label="Sort downloads">
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+              <option value="alphabetical">Alphabetical</option>
+            </select>
           </label>
           <span class="ks-status" data-ks-count>Loading mods...</span>
         </div>
@@ -5494,14 +5521,15 @@
       const state = {
         mode: modeFromUrl(),
         category: "All",
-        search: ""
+        search: "",
+        sort: "newest"
       };
-
       const grid = root.querySelector("[data-ks-grid]");
       const filters = root.querySelector("[data-ks-filters]");
       const count = root.querySelector("[data-ks-count]");
       const empty = root.querySelector("[data-ks-empty]");
       const search = root.querySelector("#ks-mod-search");
+      const sortControl = root.querySelector("[data-ks-sort]");
       const detail = root.querySelector("[data-ks-detail]");
       const detailTitle = root.querySelector("[data-ks-detail-title]");
       const detailBody = root.querySelector("[data-ks-detail-body]");
@@ -5778,6 +5806,19 @@
         return categoryMatch && haystack.includes(text(state.search));
       }
 
+      function sortTitle(mod) {
+        return String((mod && (mod.sortName || mod.name)) || "").replace(/^Smart\s+\u2661\s+/i, "");
+      }
+
+      function sortedMods(items) {
+        const list = items.slice();
+        if (state.sort === "oldest") return list.reverse();
+        if (state.sort === "alphabetical") {
+          return list.sort((a, b) => sortTitle(a).localeCompare(sortTitle(b), undefined, { sensitivity: "base" }));
+        }
+        return list;
+      }
+
       function make(tag, className, textContent) {
         const node = document.createElement(tag);
         if (className) node.className = className;
@@ -5872,7 +5913,7 @@
         const activeCards = state.mode === "events" ? eventCards : careerCards;
         const activeSelected = state.mode === "events" ? selectedEvents : selectedCareers;
         const itemName = state.mode === "events" ? "event" : "career";
-        const selected = activeCards.filter(mod => activeSelected.has(mod.name));
+        const selected = sortedMods(activeCards).filter(mod => activeSelected.has(mod.name));
         selectedPanel.append(make("h3", "", selected.length ? "Selected " + (state.mode === "events" ? "Event" : "Career") + " Downloads" : "No " + itemName + "s selected yet"));
 
         if (!selected.length) {
@@ -6183,8 +6224,11 @@
           search.placeholder = careerMode ? "Search by career, category, or tag" : (eventMode ? "Search by event, theme, or tag" : "Search by mod, pack, category, or tag");
         }
         renderFilters();
+        if (sortControl && sortControl.value !== state.sort) {
+          sortControl.value = state.sort;
+        }
         grid.innerHTML = "";
-        const visible = sourceMods().filter(matches);
+        const visible = sortedMods(sourceMods().filter(matches));
         empty.style.display = visible.length ? "none" : "block";
         visible.forEach(mod => grid.appendChild(renderCard(mod)));
         const noun = careerMode ? "career" : (eventMode ? "event" : "mod");
@@ -6195,6 +6239,15 @@
         state.search = event.target.value || "";
         render();
       });
+
+      if (sortControl) {
+        sortControl.addEventListener("change", event => {
+          const value = event.target.value || "newest";
+          state.sort = ["newest", "oldest", "alphabetical"].includes(value) ? value : "newest";
+          trackWidgetEvent("sort_downloads", { page_mode: state.mode, sort_order: state.sort });
+          render();
+        });
+      }
 
       setupProfileImage();
       setupCareerPanel();
