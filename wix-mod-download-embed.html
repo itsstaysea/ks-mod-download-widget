@@ -5802,6 +5802,10 @@
         if (mod.isEventDownload) return mod.features || [];
         if (!mod.isCareerDownload) return mod.features || [];
 
+        if (Array.isArray(mod.features) && mod.features.length) {
+          return mod.features;
+        }
+
         const additions = parseCareerAdditions(mod);
         const skillFocus = careerSkillFocus(mod);
 
