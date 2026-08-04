@@ -5492,6 +5492,24 @@
         mod.isEventDownload = true;
       });
       const modCards = Array.isArray(data.mods) ? data.mods : [];
+
+      const releaseDates = {
+        "Smart \u2661 Cleaning Careers": "2026-08-03",
+        "Memorable Events": "2026-07-31",
+        "Smart \u2661 Beauty Careers": "2026-07-14"
+      };
+
+      modCards.forEach(mod => {
+        if (releaseDates[mod.name]) mod.sortDate = releaseDates[mod.name];
+      });
+      careerCards.forEach(career => {
+        const tags = career.tags || [];
+        if (tags.includes("Cleaning Careers")) career.sortDate = "2026-08-03";
+        if (tags.includes("Beauty Careers")) career.sortDate = "2026-07-14";
+      });
+      eventCards.forEach(event => {
+        event.sortDate = "2026-07-31";
+      });
       const modeAliases = {
         career: "careers",
         careers: "careers",
@@ -5811,12 +5829,20 @@
       }
 
       function sortedMods(items) {
-        const list = items.slice();
-        if (state.sort === "oldest") return list.reverse();
+        const list = items.map((item, index) => ({ item, index }));
         if (state.sort === "alphabetical") {
-          return list.sort((a, b) => sortTitle(a).localeCompare(sortTitle(b), undefined, { sensitivity: "base" }));
+          return list
+            .sort((a, b) => sortTitle(a.item).localeCompare(sortTitle(b.item), undefined, { sensitivity: "base" }))
+            .map(entry => entry.item);
         }
-        return list;
+        const direction = state.sort === "oldest" ? 1 : -1;
+        return list
+          .sort((a, b) => {
+            const aDate = Date.parse(a.item.sortDate || "1970-01-01");
+            const bDate = Date.parse(b.item.sortDate || "1970-01-01");
+            return ((aDate - bDate) * direction) || (a.index - b.index);
+          })
+          .map(entry => entry.item);
       }
 
       function make(tag, className, textContent) {
