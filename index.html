@@ -1,3 +1,10 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-D9Y52M4SBR"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+  gtag("config", "G-D9Y52M4SBR");
+</script>
 <div id="ks-mod-widget" class="ks-mod-widget" data-profile-image="https://www.dropbox.com/scl/fi/r2m1n1kyrqj16vvr2ogt5/Profile.jpg?rlkey=mx59y15del3t0erbvgnucol2p&amp;raw=1">
   <style>
     html,
@@ -5519,6 +5526,32 @@
         return String(name || "KS").split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]).join("").toUpperCase();
       }
 
+
+      function trackWidgetEvent(action, details) {
+        if (typeof window.gtag !== "function") return;
+        window.gtag("event", action, Object.assign({
+          event_category: "ks_mod_download_widget",
+          page_mode: state.mode
+        }, details || {}));
+      }
+
+      function trackItemEvent(action, mod, details) {
+        trackWidgetEvent(action, Object.assign({
+          item_name: mod && mod.name ? mod.name : "",
+          item_category: mod && (mod.category || mod.kind) ? (mod.category || mod.kind) : "",
+          item_kind: mod && (mod.kind || mod.category) ? (mod.kind || mod.category) : "",
+          item_platform: mod && (mod.game || mod.platform) ? (mod.game || mod.platform) : ""
+        }, details || {}));
+      }
+
+      function trackLink(link, action, mod, details) {
+        if (!link || !link.addEventListener) return link;
+        link.addEventListener("click", () => {
+          const href = link.getAttribute("href") || link.href || "";
+          trackItemEvent(action, mod, Object.assign({ item_url: href }, details || {}));
+        });
+        return link;
+      }
       function setupProfileImage() {
         const src = root.getAttribute("data-profile-image") || "";
         if (!profileImage || !src) return;
@@ -5571,21 +5604,37 @@
         modeButtons.forEach(button => {
           if (button.matches("a[href]")) return;
           button.addEventListener("click", () => {
-            setMode(button.getAttribute("data-ks-mode") || "sims", true);
+            const targetMode = button.getAttribute("data-ks-mode") || "sims";
+            trackWidgetEvent("switch_download_page", { target_page: normalizeMode(targetMode) });
+            setMode(targetMode, true);
             root.querySelector(".ks-toolbar").scrollIntoView({ behavior: "smooth", block: "start" });
           });
         });
 
         if (showSelected) {
-          showSelected.addEventListener("click", renderSelectedLinks);
+          showSelected.addEventListener("click", () => {
+            const activeSelected = state.mode === "events" ? selectedEvents : selectedCareers;
+            trackWidgetEvent("show_selected_download_links", { selected_count: activeSelected.size });
+            renderSelectedLinks();
+          });
         }
 
         if (clearSelected) {
           clearSelected.addEventListener("click", () => {
+            trackWidgetEvent("clear_selected_downloads", { selected_count: selectedCareers.size + selectedEvents.size });
             selectedCareers.clear();
             selectedEvents.clear();
             hideSelectedLinks();
             render();
+          });
+        }
+
+        if (bundleButton) {
+          bundleButton.addEventListener("click", () => {
+            trackWidgetEvent(state.mode === "events" ? "event_bundle_download_click" : "career_bundle_download_click", {
+              item_name: bundleButton.textContent.trim(),
+              item_url: bundleButton.getAttribute("href") || bundleButton.href || ""
+            });
           });
         }
       }
@@ -5845,6 +5894,7 @@
           link.href = href;
           link.target = "_blank";
           link.rel = "noopener";
+          trackLink(link, mod.isEventDownload ? "event_download_click" : "career_download_click", mod, { download_location: "selected_links" });
           links.append(link);
         });
         selectedPanel.append(links);
@@ -5866,8 +5916,10 @@
         checkbox.addEventListener("change", () => {
           if (checkbox.checked) {
             selectionSet.add(mod.name);
+            trackItemEvent("select_download_item", mod);
           } else {
             selectionSet.delete(mod.name);
+            trackItemEvent("deselect_download_item", mod);
           }
           hideSelectedLinks();
         });
@@ -5919,6 +5971,7 @@
           download.href = downloadHref;
           download.target = "_blank";
           download.rel = "noopener";
+          trackLink(download, mod.isEventDownload ? "event_download_click" : "career_download_click", mod, { download_location: "card" });
         } else {
           download.setAttribute("aria-disabled", "true");
         }
@@ -5976,6 +6029,7 @@
           download.href = mod.downloadUrl;
           download.target = "_blank";
           download.rel = "noopener";
+          trackLink(download, "mod_download_click", mod, { download_location: "card" });
           actions.append(download);
         }
 
@@ -6002,6 +6056,9 @@
       }
 
       function openDetail(mod) {
+        trackItemEvent("open_details", mod, {
+          detail_type: mod.isEventDownload ? "event" : (mod.isCareerDownload ? "career" : "mod")
+        });
         detail.classList.add("active");
         setSmartName(detailTitle, mod.name);
         detailBody.innerHTML = "";
@@ -6063,6 +6120,9 @@
         const close = make("button", "ks-button", "Close Details");
         close.type = "button";
         close.addEventListener("click", () => detail.classList.remove("active"));
+        if (download && download.tagName === "A") {
+          trackLink(download, mod.isEventDownload ? "event_download_click" : (mod.isCareerDownload ? "career_download_click" : "mod_download_click"), mod, { download_location: "details" });
+        }
         actions.append(download);
         if (mod.individualMode || mod.individualComingSoon) {
           if (mod.individualComingSoon) {
@@ -6073,6 +6133,7 @@
             const individual = make("a", "ks-button", mod.individualLabel || "Download Individually");
             individual.href = modePageUrls[normalizeMode(mod.individualMode)] || modePageUrls.careers;
             individual.target = "_top";
+            trackLink(individual, "individual_download_page_click", mod, { target_page: normalizeMode(mod.individualMode) });
             actions.append(individual);
           }
         }
@@ -6081,6 +6142,7 @@
           blog.href = mod.blogUrl;
           blog.target = "_blank";
           blog.rel = "noopener";
+          trackLink(blog, "blog_page_click", mod, { download_location: "details" });
           actions.append(blog);
         }
         actions.append(close);
