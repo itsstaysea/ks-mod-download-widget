@@ -6076,7 +6076,7 @@
           download.setAttribute("aria-disabled", "true");
         }
         actions.append(info, download);
-        const hasPackDownload = (mod.tags || []).some(tag =>
+        const hasPackDownload = mod.isEventDownload || (mod.tags || []).some(tag =>
           tag === "Cleaning Careers" || tag === "Beauty Careers" || tag === "Career Override"
         );
         if (hasPackDownload && mod.blogUrl) {
@@ -6249,7 +6249,7 @@
           }
         }
         if (mod.blogUrl) {
-          const hasPackDownload = (mod.tags || []).some(tag =>
+          const hasPackDownload = mod.isEventDownload || (mod.tags || []).some(tag =>
             tag === "Cleaning Careers" || tag === "Beauty Careers" || tag === "Career Override"
           );
           const blogLabel = hasPackDownload ? "Download Pack" : "Open Blog Page";
