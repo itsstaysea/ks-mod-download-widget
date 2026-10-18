@@ -4,3 +4,6 @@ assets/
 docs/
 career-download-links-saved-before-coming-soon.md
 career-thumbnail-template.html
+
+!makeupstudio/assets/
+!makeupstudio/assets/**
