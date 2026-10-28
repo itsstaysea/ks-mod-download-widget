@@ -6119,7 +6119,7 @@ function parseModDate(value){
   return {iso:date.toISOString().slice(0,10),label:date.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'})};
 }
 function sheetDates(text){
-  const rows=parseSheetCSV(text), header=rows.findIndex(r=>r[1]==='Mods' && r[3]==='Updates');
+  const rows=parseSheetCSV(text), header=rows.findIndex(r=>r[1]==='Mods' && ['Updates','Updated'].includes(r[3]));
   if(header<0)throw new Error('Unrecognized sheet columns');
   const dates=new Map(), duplicates=new Set();
   for(const row of rows.slice(header+1)){const name=(row[1]||'').trim();if(!name)continue;if(dates.has(name))duplicates.add(name);dates.set(name,parseModDate(row[3]||''));}
