@@ -6111,9 +6111,14 @@ function parseSheetCSV(text) {
   return rows;
 }
 function parseModDate(value){
-  const m=/^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})$/.exec(value.trim());
-  if(!m)return null;
-  const year=m[3].length===2?2000+Number(m[3]):Number(m[3]), month=Number(m[1]), day=Number(m[2]);
+  const text=value.trim();
+  const numeric=/^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})$/.exec(text);
+  const named=/^([a-z]+)\s+(\d{1,2}),?\s+(\d{4})$/i.exec(text);
+  if(!numeric && !named)return null;
+  const months=['january','february','march','april','may','june','july','august','september','october','november','december'];
+  const m=numeric||named;
+  const year=m[3].length===2?2000+Number(m[3]):Number(m[3]), day=Number(m[2]);
+  const month=numeric?Number(m[1]):months.findIndex(name=>name===m[1].toLowerCase() || name.slice(0,3)===m[1].toLowerCase())+1;
   const date=new Date(Date.UTC(year,month-1,day));
   if(year<2000 || year>2099 || date.getUTCFullYear()!==year || date.getUTCMonth()!==month-1 || date.getUTCDate()!==day)return null;
   return {iso:date.toISOString().slice(0,10),label:date.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'})};
